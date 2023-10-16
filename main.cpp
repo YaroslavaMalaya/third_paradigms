@@ -1,27 +1,29 @@
 #include <iostream>
-#include <cstdio>
-#include <windows.h>
+#include <dlfcn.h>
 using namespace std;
 
 typedef char* (*encrypt_ptr_t)(char*, int);
 typedef char* (*decrypt_ptr_t)(char*, int);
 
 int main() {
-    HINSTANCE handle = LoadLibrary(TEXT("liblibrary.dll"));
-    if (handle == nullptr || handle == INVALID_HANDLE_VALUE) {
-        cout << "Lib not found" << endl;
+    void* handle = dlopen("./liblibrary.dylib", RTLD_LAZY);
+    if (!handle) {
+        cout << "Lib not found. Error: " << dlerror() << endl;
+        return 1;
+    }
+    dlerror(); // clear any existing errors
+
+    encrypt_ptr_t encrypt_ptr = (encrypt_ptr_t)dlsym(handle, "encrypt");
+    const char* dlsym_error = dlerror();
+    if (dlsym_error) {
+        cout << "Encrypt function not found. Error: " << dlsym_error << endl;
         return 1;
     }
 
-    encrypt_ptr_t encrypt_ptr = (encrypt_ptr_t)GetProcAddress(handle, "encrypt");
-    if (encrypt_ptr == nullptr) {
-        cout << "Encrypt function not found" << endl;
-        return 1;
-    }
-
-    decrypt_ptr_t decrypt_ptr = (decrypt_ptr_t)GetProcAddress(handle, "decrypt");
-    if (decrypt_ptr == nullptr) {
-        cout << "Decrypt function not found" << endl;
+    decrypt_ptr_t decrypt_ptr = (decrypt_ptr_t)dlsym(handle, "decrypt");
+    dlsym_error = dlerror();
+    if (dlsym_error) {
+        cout << "Decrypt function not found. Error: " << dlsym_error << endl;
         return 1;
     }
 
@@ -37,13 +39,13 @@ int main() {
 
         char* encryptedMessage = encrypt_ptr(input, key);
         char* decryptedMessage = decrypt_ptr(encryptedMessage, key);
-        printf("Encrypted Message: %s", encryptedMessage);
-        printf("\nDecrypted Message: %s", decryptedMessage);
+        cout << "Encrypted Message: " <<  encryptedMessage << endl;
+        cout << "Decrypted Message: " << decryptedMessage << endl;
 
         free(decryptedMessage);
         free(encryptedMessage);
     }
 
-    FreeLibrary(handle);
+    dlclose(handle);
     return 0;
 }

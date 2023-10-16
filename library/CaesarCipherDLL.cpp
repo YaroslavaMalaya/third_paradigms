@@ -1,9 +1,16 @@
 #include <cstring>
 #include <cstdlib>
 
+#if defined(_WIN32) || defined(_WIN64)
+#define EXPORT __declspec(dllexport)
+#else
+#define EXPORT __attribute__((visibility("default")))
+#endif
+
+
 extern "C"
 {
-    __declspec(dllexport) char* encrypt(char* rawText, int key) {
+    EXPORT char* encrypt(char* rawText, int key) {
     int length = strlen(rawText);
     char* encryptedText = (char*)malloc(length + 1);
 
@@ -24,7 +31,7 @@ extern "C"
     return encryptedText;
     }
 
-    __declspec(dllexport) char* decrypt(char* encryptedText, int key) {
+    EXPORT char* decrypt(char* encryptedText, int key) {
     int length = strlen(encryptedText);
     char* decryptedText = (char*)malloc(length + 1);
 
