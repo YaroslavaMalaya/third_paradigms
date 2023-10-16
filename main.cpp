@@ -1,72 +1,49 @@
 #include <iostream>
 #include <cstdio>
-#include <cstring>
-#include <cstdlib>
+#include <windows.h>
 using namespace std;
 
-char* encrypt(char* rawText, int key) {
-    int length = strlen(rawText);
-    char* encryptedText = (char*) malloc(length + 1);
-
-    for (int i = 0; i < length; i++) {
-        char ch = rawText[i];
-        if (ch >= 'A' && ch <= 'Z') {
-            encryptedText[i] = (ch - 65 + key) % 26 + 65; // 65 = 'A'
-        }
-        else if (ch >= 'a' && ch <= 'z') {
-            encryptedText[i] = (ch - 97 + key) % 26 + 97; // 97 = 'a'
-        }
-        else {
-            encryptedText[i] = ch;
-        }
-    }
-
-    encryptedText[length] = '\0';
-
-    return encryptedText;
-}
-
-char* decrypt(char* encryptedText, int key) {
-    int length = strlen(encryptedText);
-    char* decryptedText = (char*) malloc(length + 1);
-
-    for (int i = 0; i < length; i++) {
-        char ch = encryptedText[i];
-
-        if (ch >= 'A' && ch <= 'Z') {
-            decryptedText[i] = (ch - 65 - key + 26) % 26 + 65;
-        }
-        else if (ch >= 'a' && ch <= 'z') {
-            decryptedText[i] = (ch - 97 - key + 26) % 26 + 97;
-        }
-        else {
-            decryptedText[i] = ch;
-        }
-    }
-
-    decryptedText[length] = '\0';
-
-    return decryptedText;
-}
-
+typedef char* (*encrypt_ptr_t)(char*, int);
+typedef char* (*decrypt_ptr_t)(char*, int);
 
 int main() {
+    HINSTANCE handle = LoadLibrary(TEXT("liblibrary.dll"));
+    if (handle == nullptr || handle == INVALID_HANDLE_VALUE) {
+        cout << "Lib not found" << endl;
+        return 1;
+    }
+
+    encrypt_ptr_t encrypt_ptr = (encrypt_ptr_t)GetProcAddress(handle, "encrypt");
+    if (encrypt_ptr == nullptr) {
+        cout << "Encrypt function not found" << endl;
+        return 1;
+    }
+
+    decrypt_ptr_t decrypt_ptr = (decrypt_ptr_t)GetProcAddress(handle, "decrypt");
+    if (decrypt_ptr == nullptr) {
+        cout << "Decrypt function not found" << endl;
+        return 1;
+    }
+
     int key = 0;
     char input[10000];
 
-    while (true){
+    while (true) {
         cout << "\n\nEnter text (please no more than 10000 symbols): ";
         cin.getline(input, sizeof(input));
         cout << "Enter number-key: ";
         cin >> key;
         cin.ignore();
 
-        char* encryptedMessage = encrypt(input, key);
-        char* decryptedMessage = decrypt(encryptedMessage, key);
+        char* encryptedMessage = encrypt_ptr(input, key);
+        char* decryptedMessage = decrypt_ptr(encryptedMessage, key);
         printf("Encrypted Message: %s", encryptedMessage);
         printf("\nDecrypted Message: %s", decryptedMessage);
 
         free(decryptedMessage);
         free(encryptedMessage);
     }
+
+    FreeLibrary(handle);
+    return 0;
 }

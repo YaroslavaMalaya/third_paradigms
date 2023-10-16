@@ -3,4 +3,5 @@ project(third_paradigms)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(third_paradigms main.cpp)
+add_executable(third_paradigms main.cpp
+        library/CaesarCipherDLL.cpp)
