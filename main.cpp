@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstdio>
 #include <dlfcn.h>
 using namespace std;
 
