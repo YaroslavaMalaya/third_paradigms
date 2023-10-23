@@ -1,6 +1,8 @@
 #include <iostream>
 #include <cstdio>
 #include <dlfcn.h>
+#include "FileReader.h"
+#include "FileWriter.h"
 using namespace std;
 
 typedef char* (*encrypt_ptr_t)(char*, int);
