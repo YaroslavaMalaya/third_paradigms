@@ -31,25 +31,78 @@ int main() {
     }
 
     int key = 0;
-    char input[10000];
+    int mode;
+    string inputPath, outputPath;
+    string operation;
+    FileReader fileReader;
+    FileWriter fileWriter;
+    string content;
+    char* result;
 
     while (true) {
-        cout << "\n\nEnter text (please no more than 10000 symbols): ";
-        cin.getline(input, sizeof(input));
-        cout << "Enter number-key for encryption: ";
-        cin >> key;
+        cout << "Choose mode (1 for Normal, 2 for Secret, 3 for Exit): ";
+        cin >> mode;
         cin.ignore();
 
-        char* encryptedMessage = encrypt_ptr(input, key);
-        cout << "Encrypted Message: " <<  encryptedMessage << endl;
-        cout << "Enter number-key for decryption: ";
-        cin >> key;
-        cin.ignore();
-        char* decryptedMessage = decrypt_ptr(encryptedMessage, key);
-        cout << "Decrypted Message: " << decryptedMessage << endl;
+        if (mode == 1){
+            cout << "Enter operation (encrypt/decrypt): ";
+            cin >> operation;
+            cout << "Enter number-key for encryption: ";
+            cin >> key;
+            cin.ignore();
+        }
+        else if (mode == 2){
+            operation = "encrypt";
+            key = rand() % 26;
+        }
+        else if (mode == 3){
+            break;
+        }
+        else{
+            cout << "Invalid mode selected. Try again." << endl;
+        }
 
-        free(decryptedMessage);
-        free(encryptedMessage);
+        cout << "Enter input file path: ";
+        cin >> inputPath;
+        cout << "Enter output file path: ";
+        cin >> outputPath;
+
+        try {
+            content = fileReader.read(inputPath);
+        } catch (const runtime_error& e) {
+            cout << "Error reading file: " << e.what() << endl;
+            continue;
+        }
+
+        if (operation == "encrypt") {
+            result = encrypt_ptr(const_cast<char*>(content.c_str()), key);
+        } else if (operation == "decrypt") {
+            result = decrypt_ptr(const_cast<char*>(content.c_str()), key);
+        } else {
+            cout << "Invalid operation. Please enter 'encrypt' or 'decrypt'." << endl;
+            continue;
+        }
+
+        fileWriter.write(outputPath, result);
+        free(result);
+        cout << "Operation successful. Result written to " << outputPath << endl;
+
+//        cout << "\n\nEnter text (please no more than 10000 symbols): ";
+//        cin.getline(input, sizeof(input));
+//        cout << "Enter number-key for encryption: ";
+//        cin >> key;
+//        cin.ignore();
+//
+//        char* encryptedMessage = encrypt_ptr(input, key);
+//        cout << "Encrypted Message: " <<  encryptedMessage << endl;
+//        cout << "Enter number-key for decryption: ";
+//        cin >> key;
+//        cin.ignore();
+//        char* decryptedMessage = decrypt_ptr(encryptedMessage, key);
+//        cout << "Decrypted Message: " << decryptedMessage << endl;
+//
+//        free(decryptedMessage);
+//        free(encryptedMessage);
     }
 
     dlclose(handle);
