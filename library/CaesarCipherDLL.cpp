@@ -33,7 +33,8 @@ extern "C"
     }
 
     EXPORT char* decrypt(char* encryptedText, int key) {
-        key = key % 26;
+        if (key > 26)
+            key = key % 26;
         int length = strlen(encryptedText);
         char* decryptedText = (char*)malloc(length + 1);
 
