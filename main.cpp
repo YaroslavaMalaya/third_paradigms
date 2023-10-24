@@ -47,7 +47,7 @@ int main() {
         if (mode == 1){
             cout << "Enter operation (encrypt/decrypt): ";
             cin >> operation;
-            cout << "Enter number-key for encryption: ";
+            cout << "Enter number-key for encryption/: ";
             cin >> key;
             cin.ignore();
         }
@@ -85,24 +85,8 @@ int main() {
 
         fileWriter.write(outputPath, result);
         free(result);
+        result = NULL;
         cout << "Operation successful. Result written to " << outputPath << endl;
-
-//        cout << "\n\nEnter text (please no more than 10000 symbols): ";
-//        cin.getline(input, sizeof(input));
-//        cout << "Enter number-key for encryption: ";
-//        cin >> key;
-//        cin.ignore();
-//
-//        char* encryptedMessage = encrypt_ptr(input, key);
-//        cout << "Encrypted Message: " <<  encryptedMessage << endl;
-//        cout << "Enter number-key for decryption: ";
-//        cin >> key;
-//        cin.ignore();
-//        char* decryptedMessage = decrypt_ptr(encryptedMessage, key);
-//        cout << "Decrypted Message: " << decryptedMessage << endl;
-//
-//        free(decryptedMessage);
-//        free(encryptedMessage);
     }
 
     dlclose(handle);
